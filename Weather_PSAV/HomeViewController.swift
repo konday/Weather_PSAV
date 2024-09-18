@@ -9,15 +9,16 @@ import UIKit
 
 class HomeViewController: UIViewController {
     
-    private lazy var leftButton: UIButton = {
+    private lazy var mapButton: UIButton = {
         let btn = UIButton(type: .custom)
         btn.setTitle("Map", for: .normal)
         btn.translatesAutoresizingMaskIntoConstraints = false
         return btn
     }()
     
-    private lazy var rightButton: UIButton = {
+    private lazy var searchButton: UIButton = {
         let btn = UIButton(type: .custom)
+        let symbolImage = UIImage(systemName: "map")
         btn.setTitle("Search", for: .normal)
         btn.translatesAutoresizingMaskIntoConstraints = false
         return btn
@@ -28,27 +29,27 @@ class HomeViewController: UIViewController {
         
         view.backgroundColor = .lightGray
         
-        view.addSubview(leftButton)
-        view.addSubview(rightButton)
+        view.addSubview(mapButton)
+        view.addSubview(searchButton)
         
-        leftButton.addTarget(self, action: #selector(leftAction), for: .touchUpInside)
-        rightButton.addTarget(self, action: #selector(rightAction), for: .touchUpInside)
+        mapButton.addTarget(self, action: #selector(mapAction), for: .touchUpInside)
+        searchButton.addTarget(self, action: #selector(searchAction), for: .touchUpInside)
         
         NSLayoutConstraint.activate([
-            leftButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -40),
-            leftButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            rightButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -40),
-            rightButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16)
+            mapButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -40),
+            mapButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            searchButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -40),
+            searchButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16)
         ])
         // Do any additional setup after loading the view.
     }
-    @objc private func leftAction() {
-        let searchVC = MapViewController()
+    @objc private func mapAction() {
+        let mapVC = MapViewController()
         //searchVC.modalPresentationStyle = .fullScreen
-        present(searchVC, animated: true)
+        present(mapVC, animated: true)
     }
     
-    @objc private func rightAction() {
+    @objc private func searchAction() {
         let searchVC = SearchViewController()
         //searchVC.modalPresentationStyle = .fullScreen
         present(searchVC, animated: true)
