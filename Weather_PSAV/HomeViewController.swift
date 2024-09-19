@@ -45,14 +45,14 @@ class HomeViewController: UIViewController {
     }
     @objc private func mapAction() {
         let mapVC = MapViewController()
-        //searchVC.modalPresentationStyle = .fullScreen
         present(mapVC, animated: true)
     }
     
     @objc private func searchAction() {
         let searchVC = SearchViewController()
-        //searchVC.modalPresentationStyle = .fullScreen
-        present(searchVC, animated: true)
+//        searchVC.modalPresentationStyle = .fullScreen
+//        present(searchVC, animated: true)
+        navigationController?.pushViewController(searchVC, animated: true)
     }
 
 }
