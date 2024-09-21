@@ -9,6 +9,14 @@ import UIKit
 
 class HomeViewController: UIViewController {
     
+    private lazy var nameOfCity: UILabel = {
+        let name = UILabel()
+        name.text = ""
+        name.textColor = .white
+        name.translatesAutoresizingMaskIntoConstraints = false
+        return name
+    }()
+    
     private lazy var mapButton: UIButton = {
         let btn = UIButton(type: .custom)
         btn.setTitle("Map", for: .normal)
@@ -29,6 +37,7 @@ class HomeViewController: UIViewController {
         
         view.backgroundColor = .lightGray
         
+        view.addSubview(nameOfCity)
         view.addSubview(mapButton)
         view.addSubview(searchButton)
         
@@ -36,8 +45,12 @@ class HomeViewController: UIViewController {
         searchButton.addTarget(self, action: #selector(searchAction), for: .touchUpInside)
         
         NSLayoutConstraint.activate([
+            nameOfCity.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            nameOfCity.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            
             mapButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -40),
             mapButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            
             searchButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -40),
             searchButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16)
         ])
@@ -52,8 +65,14 @@ class HomeViewController: UIViewController {
         let searchVC = SearchViewController()
 //        searchVC.modalPresentationStyle = .fullScreen
 //        present(searchVC, animated: true)
+        searchVC.delegate = self
         navigationController?.pushViewController(searchVC, animated: true)
     }
 
 }
 
+extension HomeViewController: SearchViewControllerDelegate {
+    func citySelectByUser(city: String) {
+        nameOfCity.text = city
+    }
+}
