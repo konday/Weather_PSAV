@@ -63,8 +63,6 @@ class HomeViewController: UIViewController {
     
     @objc private func searchAction() {
         let searchVC = SearchViewController()
-//        searchVC.modalPresentationStyle = .fullScreen
-//        present(searchVC, animated: true)
         searchVC.delegate = self
         navigationController?.pushViewController(searchVC, animated: true)
     }
