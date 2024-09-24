@@ -6,7 +6,7 @@
 //
 import UIKit
 
-protocol SearchViewControllerDelegate: AnyObject{
+protocol SearchViewControllerDelegate: AnyObject {
     func citySelectByUser(city: String)
 }
 
@@ -45,6 +45,15 @@ class SearchViewController: UIViewController {
     
     var tableView = UITableView()
     
+    private var viewModel: SearchViewModel
+    
+    init(viewModel: SearchViewModel) {
+        super.init(nibName: nil, bundle: <#T##Bundle?#>)
+    }
+    
+    required init?(code: NSCoder ) {
+        fatalError("init(coder:) has not been implement")
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
