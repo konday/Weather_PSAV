@@ -6,9 +6,30 @@
 //
 import UIKit
 
+protocol SearchViewControllerDelegate: AnyObject {
+    func citySelectedByUser(city: String)
+}
+
 class SearchViewController: UIViewController {
     
+    weak var delegate:SearchViewControllerDelegate?
+    
     let infoData = ["Los Angeles", "New York", "Miami"]
+    
+    var filteredData: [String] = []
+    
+    var isSearchBarEmpty: Bool {
+        return searchController.searchBar.text?.isEmpty ?? true
+        
+    }
+    
+    let searchController: UISearchController = {
+        let searchController = UISearchController(searchResultsController: nil)
+        
+        searchController.obscuresBackgroundDuringPresentation = false
+        searchController.searchBar.placeholder = "Search"
+        return searchController
+    }()
     
     private lazy var closeButton: UIButton = {
         let btn = UIButton(type: .custom)
@@ -22,26 +43,42 @@ class SearchViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        searchController.searchBar.delegate = self
+        searchController.searchResultsUpdater = self
+        
+        navigationItem.searchController = searchController
+        navigationItem.hidesBackButton = true
+        navigationItem.title = "Weather"
+        navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "ellipsis.circle"), style: .plain, target: self, action: #selector(showMenu))
+        
+        //        let backButton = UIBarButtonItem(systemItem: .camera)
+        //        let systemButton = UIBarButtonItem(systemItem: .stop)
+        //        navigationItem.rightBarButtonItems = [backButton, systemButton]
+        navigationController?.navigationBar.prefersLargeTitles = true
+        navigationItem.hidesSearchBarWhenScrolling = false
         
         view.backgroundColor = .blue
-        
-//        view.addSubview(closeButton)
-//        
-//        closeButton.addTarget(self, action: #selector(closeAction), for: .touchUpInside)
-//        
-//        NSLayoutConstraint.activate([
-//            closeButton.topAnchor.constraint(equalTo: view.topAnchor, constant: 80),
-//            closeButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16)
-//        ])
-//        
+
         setupTable()
     }
     
+    func searchedData (data:String) {
+        filteredData = infoData.filter{(text: String) -> Bool in
+            return text.lowercased().contains(data.lowercased())
+        }
+        tableView.reloadData()
+    }
+    
+    @objc func showMenu(){
+        print ("Show Menu")
+    }
+    
+    //MARK: fix
     func setupTable() {
         view.addSubview(tableView)
         tableView.dataSource = self
         tableView.delegate = self
-        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
+        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "Cell")
         tableView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
@@ -50,30 +87,41 @@ class SearchViewController: UIViewController {
             tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
     }
-    
-//    @objc private func closeAction() {
-////        print("closeBtn")
-//        //        dismiss(animated: true)
-//        navigationController?.popViewController(animated: true)
-//    }
 }
 
+//MARK: UITableViewDataSource
 extension SearchViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return infoData.count
+        return isSearchBarEmpty ? infoData.count : filteredData.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
-        cell.textLabel?.text = infoData[indexPath.row]
+        let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
+        cell.textLabel?.text = isSearchBarEmpty ? infoData[indexPath.row] : filteredData[indexPath.row]
         return cell
     }
 }
 
+// MARK: UITableViewDelegate
 extension SearchViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let city = isSearchBarEmpty ? infoData[indexPath.row] : filteredData[indexPath.row]
+        delegate?.citySelectedByUser(city: city)
+        print(city)
+        navigationController?.popViewController(animated: true)
     }
 }
 
-    
-    
+//MARK: UISearchBarDelegate
+extension SearchViewController: UISearchBarDelegate {
+    func searchBar(_ searchBar: UISearchBar, selectedScopeButtonIndexDidChange selectedScope: Int) {
+        searchedData(data: searchBar.text ?? "")
+    }
+}
+ 
+// MARK: UISearchResultsUpdating
+extension SearchViewController : UISearchResultsUpdating {
+    func updateSearchResults(for searchController: UISearchController) {
+        searchedData(data: searchController.searchBar.text ?? "")
+    }
+}
