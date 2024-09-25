@@ -8,18 +8,30 @@
 import UIKit
 
 protocol SearchViewModelDelegate: AnyObject {
-    func getData()
+    func dataLoaded()
 }
 
 class SearchViewModel {
     
     weak var delegate: SearchViewModelDelegate?
     
-    let infoData = ["New York", "Boston", "New Jersy"]
+    private let infoData = ["New York", "Boston", "New Jersy"]
     
-    var filteredData: [String] = []
+    private var filteredData: [String] = []
     
     func didLoad(){
-        
+        delegate?.dataLoaded()
     }
+    
+    func searchedData(data: String) {
+        filteredData = infoData.filter{(text: String) -> Bool in
+            return text.lowercased().hasPrefix(data.lowercased())
+            }
+        delegate?.dataLoaded()
+    }
+    
+    func getData() -> [String]{
+        return filteredData.isEmpty ? infoData : filteredData
+    }
+    
 }

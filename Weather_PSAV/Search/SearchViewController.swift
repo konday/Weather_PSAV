@@ -14,9 +14,9 @@ class SearchViewController: UIViewController {
     
     weak var delegate: SearchViewControllerDelegate?
     
-    let infoData = ["New York", "Boston", "New Jersy"]
+   // let infoData = ["New York", "Boston", "New Jersy"]
     
-    var filteredData: [String] = []
+    //var filteredData: [String] = []
     
     var isSearchBarEmpty: Bool{
         return searchController.searchBar.text?.isEmpty ?? true
@@ -29,10 +29,12 @@ class SearchViewController: UIViewController {
         return searchController
     }()
     
-    private lazy var cityTable: UITableView = {
+    private lazy var tableView: UITableView = {
         let table = UITableView()
-        table.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
+        table.register(CityTableViewCell.self, forCellReuseIdentifier: "cell")
         table.translatesAutoresizingMaskIntoConstraints = false
+        table.dataSource = self
+        table.delegate = self
         return table
     }()
     
@@ -43,27 +45,26 @@ class SearchViewController: UIViewController {
         return btn
     }()
     
-    var tableView = UITableView()
-    
     private var viewModel: SearchViewModel
     
     init(viewModel: SearchViewModel) {
-        super.init(nibName: nil, bundle: <#T##Bundle?#>)
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
     }
     
-    required init?(code: NSCoder ) {
-        fatalError("init(coder:) has not been implement")
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        setupTable()
+        viewModel.delegate = self
         
         searchController.searchBar.delegate = self
         searchController.searchResultsUpdater = self
         
-        view.addSubview(cityTable)
+        view.addSubview(tableView)
         
         navigationItem.searchController = searchController
         navigationItem.hidesBackButton = true
@@ -75,42 +76,38 @@ class SearchViewController: UIViewController {
         view.backgroundColor = .gray
                 
         NSLayoutConstraint.activate([
-            cityTable.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            cityTable.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            cityTable.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            cityTable.bottomAnchor.constraint(equalTo:  view.bottomAnchor)
+            tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            tableView.bottomAnchor.constraint(equalTo:  view.bottomAnchor)
         ])
         // Do any additional setup after loading the view.
     }
     
-    func searchedData(data: String) {
-        filteredData = infoData.filter{(text: String) -> Bool in
-            return text.lowercased().hasPrefix(data.lowercased())
-            }
-        cityTable.reloadData()
-    }
+//    func searchedData(data: String) {
+//        filteredData = viewModel.infoData.filter{(text: String) -> Bool in
+//            return text.lowercased().hasPrefix(data.lowercased())
+//            }
+//        tableView.reloadData()
+//    }
     
     @objc func showMenue() {
         print ("Show Menue")
     }
     
-    private func setupTable() {
-        cityTable.dataSource = self
-        cityTable.delegate = self
-        cityTable.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
-    }
 }
     
-// MARK: SearchViewController
+// MARK: UITableViewDataSource
 extension SearchViewController: UITableViewDataSource {
     func tableView(_ tabCity: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return isSearchBarEmpty ? infoData.count : filteredData.count
+        return viewModel.getData().count
     }
     
     func tableView(_ tabCity: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tabCity.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
-        let isEmpty = searchController.searchBar.text?.isEmpty ?? true
-        cell.textLabel?.text = isSearchBarEmpty ? infoData[indexPath.row] : filteredData[indexPath.row]
+        guard let cell = tabCity.dequeueReusableCell(withIdentifier: "cell", for: indexPath) as? CityTableViewCell
+        else {return UITableViewCell()}
+       // let isEmpty = searchController.searchBar.text?.isEmpty ?? true
+        cell.setup(title: viewModel.getData()[indexPath.row])
         return cell
     }
 }
@@ -118,9 +115,8 @@ extension SearchViewController: UITableViewDataSource {
 // MARK: UITableViewDelegate
 extension SearchViewController: UITableViewDelegate {
     func tableView(_ tabCity: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let city = isSearchBarEmpty ? infoData[indexPath.row] : filteredData[indexPath.row]
+        let city = viewModel.getData()[indexPath.row]
         delegate?.citySelectByUser(city: city)
-        print(isSearchBarEmpty ? infoData[indexPath.row] : filteredData[indexPath.row])
         navigationController?.popViewController(animated: true)
     }
 }
@@ -128,13 +124,19 @@ extension SearchViewController: UITableViewDelegate {
 // MARK: UISearchBarDelegate
 extension SearchViewController: UISearchBarDelegate {
     func searchBar(_ searchBar: UISearchBar, selectedScopeButtonIndexDidChange selectedScope: Int) {
-        searchedData(data: searchBar.text ?? "")
+        viewModel.searchedData(data: searchBar.text ?? "")
     }
 }
 
 // MARK: SearchViewController
 extension SearchViewController: UISearchResultsUpdating {
     func updateSearchResults(for searchController: UISearchController) {
-        searchedData(data: searchController.searchBar.text ?? "")
+        viewModel.searchedData(data: searchController.searchBar.text ?? "")
+    }
+}
+
+extension SearchViewController: SearchViewModelDelegate{
+    func dataLoaded () {
+        tableView.reloadData()
     }
 }

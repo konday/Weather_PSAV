@@ -62,7 +62,8 @@ class HomeViewController: UIViewController {
     }
     
     @objc private func searchAction() {
-        let searchVC = SearchViewController()
+        var viewModel = SearchViewModel()
+        let searchVC = SearchViewController(viewModel: viewModel)
         searchVC.delegate = self
         navigationController?.pushViewController(searchVC, animated: true)
     }
