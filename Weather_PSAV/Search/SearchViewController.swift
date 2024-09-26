@@ -14,10 +14,6 @@ class SearchViewController: UIViewController {
     
     weak var delegate: SearchViewControllerDelegate?
     
-   // let infoData = ["New York", "Boston", "New Jersy"]
-    
-    //var filteredData: [String] = []
-    
     var isSearchBarEmpty: Bool{
         return searchController.searchBar.text?.isEmpty ?? true
     }
@@ -38,13 +34,13 @@ class SearchViewController: UIViewController {
         return table
     }()
     
-    private lazy var closeButton: UIButton = {
-        let btn = UIButton(type: .custom)
-        btn.setTitle("Close", for: .normal)
-        btn.translatesAutoresizingMaskIntoConstraints = false
-        return btn
-    }()
-    
+//    private lazy var closeButton: UIButton = {
+//        let btn = UIButton(type: .custom)
+//        btn.setTitle("Close", for: .normal)
+//        btn.translatesAutoresizingMaskIntoConstraints = false
+//        return btn
+//    }()
+//    
     private var viewModel: SearchViewModel
     
     init(viewModel: SearchViewModel) {
